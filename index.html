@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="食記·黑白簿">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#141414">
+<link rel="apple-touch-icon" href="apple-touch-icon-v3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-v3.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<title>食記·黑白簿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}body{margin:0;overscroll-behavior-y:none;background:#FFF8EE;color:#141414;font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang HK","PingFang TC","Microsoft JhengHei",sans-serif}
+.top{position:sticky;top:0;z-index:20;background:#141414;color:#fff}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:900;letter-spacing:.18em;font-size:13px}.logo i{font-style:normal;color:#FFD84D}
+.pill{background:#fff;color:#141414;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:800}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px 100px}
+.hero{padding:24px 0 0}
+.kicker{font-size:12px;letter-spacing:.28em;font-weight:800}.kicker b{color:#FF5A5F}
+.hero h1{font-family:"Noto Serif TC",serif;font-size:clamp(48px,9vw,92px);line-height:.95;letter-spacing:-.02em;margin:12px 0 0;font-weight:900}
+.hero h1 .hl{background:#141414;color:#FFD84D;padding:0 14px;border-radius:14px;display:inline-block;transform:rotate(-1deg)}
+.sub{font-size:17px;color:#5A5652;margin:20px 0 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1.5px solid #141414;background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:"Noto Sans TC",sans-serif}
+.chip.on{background:#141414;color:#fff}
+.toolbar{position:sticky;top:49px;z-index:15;background:#FFF8EE;padding:14px 0 10px}
+.search{width:100%;padding:17px 20px 17px 48px;border:2px solid #141414;border-radius:999px;background:#fff;font-size:16px;outline:none;box-shadow:5px 5px 0 #141414;font-family:"Noto Sans TC",sans-serif}
+.searchwrap{position:relative}.searchwrap:before{content:"⌕";position:absolute;left:19px;top:50%;transform:translateY(-50%);font-size:22px}
+.row2{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.row2 select{padding:11px 14px;border-radius:999px;border:1.5px solid #141414;background:#fff;font-weight:700;font-family:"Noto Sans TC",sans-serif}
+.add{position:fixed;left:50%;transform:translateX(-50%) rotate(-1deg);bottom:20px;background:#FF5A5F;color:#fff;border:2px solid #141414;border-radius:999px;padding:16px 26px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:5px 6px 0 #141414;white-space:nowrap;z-index:30;font-family:"Noto Sans TC",sans-serif}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:22px}
+.card{grid-column:span 4;background:#fff;border:2px solid #141414;border-radius:26px;padding:18px;position:relative;box-shadow:5px 5px 0 #141414}
+.card:nth-child(3n+1){transform:rotate(-.6deg)} .card:nth-child(3n+2){transform:rotate(.5deg);background:#FFD84D} .card:nth-child(3n+3){background:#EAF6FF}
+.card:hover{transform:rotate(0) translateY(-4px)}
+@media(max-width:860px){.card{grid-column:span 6}} @media(max-width:540px){.card{grid-column:span 12}}
+.num{font-size:11px;letter-spacing:.2em;font-weight:900;color:#8A857E}
+.card h3{font-family:"Noto Serif TC",serif;font-size:26px;line-height:1.2;margin:10px 0 8px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:12px;font-weight:800;background:#141414;color:#fff;padding:5px 9px;border-radius:999px}.tag.ghost{background:#fff;color:#141414;border:1.5px solid #141414}
+.note{font-size:16px;line-height:1.7;margin:14px 0 0;white-space:pre-wrap}
+.badge{position:absolute;right:16px;top:16px;border:2px solid #141414;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;background:#fff}
+.badge.必食{background:#141414;color:#FFD84D}.badge.黑名單{background:#FF5A5F;color:#fff}
+.btns{display:flex;gap:8px;margin-top:18px}.btn{flex:1;padding:11px;border-radius:999px;border:1.5px solid #141414;background:#fff;font-weight:800;cursor:pointer;font-family:"Noto Sans TC",sans-serif}.btn.del{background:#141414;color:#fff}
+.empty{grid-column:span 12;text-align:center;padding:70px 10px;font-size:20px;font-weight:800;line-height:1.6}
+.config{margin:14px 0;background:#FFE9E9;border:2px solid #141414;border-radius:14px;padding:12px;font-size:13px;display:none}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;z-index:40}
+.modal{background:#FFF8EE;width:100%;max-width:580px;border-radius:32px 32px 0 0;padding:26px 22px 30px;max-height:92vh;overflow:auto;border-top:6px solid #FF5A5F}
+.modal h2{font-family:"Noto Serif TC",serif}
+.modal label{display:block;font-size:14px;color:#141414;margin:18px 0 8px;font-weight:900;letter-spacing:.06em}
+.modal input,.modal select,.modal textarea{width:100%;padding:15px 16px;border:2px solid #141414;border-radius:18px;font-size:16px;line-height:1.6;background:#fff;font-family:"Noto Sans TC",sans-serif;color:#141414}
+.modal input::placeholder,.modal textarea::placeholder{color:#B5AEA6;font-size:15px}
+.modal textarea{min-height:130px;resize:vertical}
+.modal input:focus,.modal textarea:focus{outline:none;border-color:#FF5A5F;box-shadow:0 0 0 3px #FFE9E9}
+.save{width:100%;margin-top:20px;padding:16px;border:0;border-radius:999px;background:#141414;color:#fff;font-size:18px;font-weight:900;cursor:pointer;font-family:"Noto Sans TC",sans-serif;letter-spacing:.1em}
+.save:hover{background:#FF5A5F}
+.close{width:100%;margin-top:10px;padding:13px;border:0;border-radius:999px;background:#fff;border:2px solid #141414;cursor:pointer;font-weight:800;font-family:"Noto Sans TC",sans-serif}
+.rating-pills{display:flex;gap:8px;flex-wrap:wrap}
+.rating-pills button{flex:1;min-width:70px;padding:11px 6px;border-radius:999px;border:2px solid #141414;background:#fff;font-weight:900;font-size:14px;cursor:pointer;font-family:"Noto Sans TC",sans-serif}
+.rating-pills button.on{background:#141414;color:#FFD84D}
+.quick-notes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.quick-notes button{padding:8px 12px;border-radius:999px;border:1.5px dashed #8A857E;background:#fff;font-size:13px;cursor:pointer;font-family:"Noto Sans TC",sans-serif}
+.quick-notes button:hover{border-color:#FF5A5F;color:#FF5A5F}
+.foot{margin-top:40px;text-align:center;color:#8A857E;font-size:12px;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in"><div class="logo">食記 <i>●</i> 黑白簿</div><div class="pill" id="count">—</div></div></div>
+<div class="wrap">
+<div class="hero"><div class="kicker">EAT · NOTE · REPEAT — <b>唔好食都要記</b></div><h1><span>食過，</span><span class="hl">就記低佢。</span></h1><p class="sub">好食定唔好食，寫低佢，下次就唔會唔記得。</p>
+<div class="chips" id="quickChips"><button class="chip on" data-r="">全部</button><button class="chip" data-r="必食">★ 必食</button><button class="chip" data-r="唔錯">唔錯</button><button class="chip" data-r="一般">一般</button><button class="chip" data-r="黑名單">☠ 黑名單</button></div>
+<div class="toolbar"><div id="configWarn" class="config">未設定 Supabase：將 supabase-config.js 入面嘅 URL 同 anon key 換成你自己 Project 嘅，再重新整理。</div>
+<div class="searchwrap"><input id="q" class="search" placeholder="搜尋餐廳、地區、筆記…"></div>
+<div class="row2"><select id="fDistrict"><option value="">全部地區</option></select><select id="fType"><option value="">全部類型</option></select><select id="fRating" style="display:none"><option value="">全部評分</option><option>必食</option><option>唔錯</option><option>一般</option><option>黑名單</option></select></div></div>
+<div id="list" class="grid"></div>
+<div class="foot">BLACK &amp; WHITE — FOOD LOG · 共享清單</div>
+</div>
+<button class="add" onclick="openForm()">＋ 寫低值得記錄嘅食物</button>
+<div id="modalBg" class="modal-bg"><div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 id="formTitle" style="margin:0;font-size:30px">新增食記</h2><span style="font-size:28px">🍜</span></div><p style="margin:8px 0 0;color:#8A857E;font-size:14px">記低佢，下次唔會唔記得。</p>
+<input type="hidden" id="editId">
+<label>餐廳名 *</label><input id="name" placeholder="例如：某某茶餐廳">
+<label>地區</label><input id="district" placeholder="例如：旺角" list="dList"><datalist id="dList"></datalist>
+<label>類型</label><input id="type" placeholder="例如：茶餐廳 / 拉麵" list="tList"><datalist id="tList"></datalist>
+<label>評分</label><div class="rating-pills" id="ratingPills"><button type="button" data-v="必食" class="on">★ 必食</button><button type="button" data-v="唔錯">👍 唔錯</button><button type="button" data-v="一般">😐 一般</button><button type="button" data-v="黑名單">☠ 黑名單</button></div><input type="hidden" id="rating" value="必食">
+<label>筆記</label><textarea id="note" rows="4" placeholder="食咗咩？好唔好食？下次會唔會再去？"></textarea>
+<div class="quick-notes">
+<button type="button" onclick="addNote('好食到喊，會再去！')">＋ 好食到喊</button>
+<button type="button" onclick="addNote('性價比高，值得再去')">＋ 性價比高</button>
+<button type="button" onclick="addNote('排隊好耐，但值得')">＋ 排隊都值得</button>
+<button type="button" onclick="addNote('中伏，下次唔好再去')">＋ 中伏</button>
+<button type="button" onclick="addNote('未食過咁難食嘅')">＋ 未食過咁難食嘅</button>
+</div>
+<button class="save" onclick="save()">儲存 →</button>
+<button class="close" onclick="closeForm()">取消</button>
+</div></div>
+<script>
+let client=null, all=[];
+const cfg = window.SUPABASE_CONFIG || {};
+if(cfg.url && cfg.anonKey && !String(cfg.url).includes("你的project")){ client = window.supabase.createClient(cfg.url, cfg.anonKey); } else { document.getElementById('configWarn').style.display='block'; }
+async function load(){ if(!client) return; const {data, error} = await client.from('restaurants').select('*').order('created_at',{ascending:false}); if(error){ alert('讀取失敗：'+error.message); return; } all=data||[]; buildFilters(); render(); }
+function buildFilters(){ const ds=[...new Set(all.map(x=>x.district).filter(Boolean))]; const ts=[...new Set(all.map(x=>x.type).filter(Boolean))]; const dSel=document.getElementById('fDistrict'), tSel=document.getElementById('fType'); const dVal=dSel.value, tVal=tSel.value; dSel.innerHTML='<option value="">全部地區</option>'+ds.map(v=>`<option>${v}</option>`).join(''); tSel.innerHTML='<option value="">全部類型</option>'+ts.map(v=>`<option>${v}</option>`).join(''); dSel.value=dVal; tSel.value=tVal; document.getElementById('dList').innerHTML=ds.map(v=>`<option value="${v}">`).join(''); document.getElementById('tList').innerHTML=ts.map(v=>`<option value="${v}">`).join(''); }
+function render(){ const q=document.getElementById('q').value.trim().toLowerCase(); const d=document.getElementById('fDistrict').value, t=document.getElementById('fType').value, r=document.getElementById('fRating').value; const list=all.filter(x=>{ if(d && x.district!==d) return false; if(t && x.type!==t) return false; if(r && x.rating!==r) return false; if(q && !((x.name||'').toLowerCase().includes(q) || (x.note||'').toLowerCase().includes(q) || (x.district||'').toLowerCase().includes(q))) return false; return true; }); document.getElementById('count').textContent=`共 ${all.length} 間 · 顯示 ${list.length} 間`; document.getElementById('list').innerHTML=list.length? list.map((x,i)=>`<div class="card"><span class="badge ${escapeHtml(x.rating||'')}">${escapeHtml(x.rating||'')}</span><div class="num">NO. ${String(all.length-i).padStart(2,'0')} — ${escapeHtml(x.district||'未分類')}</div><h3>${escapeHtml(x.name)}</h3><div class="tags">${x.district?`<span class="tag">${escapeHtml(x.district)}</span>`:''}${x.type?`<span class="tag ghost">${escapeHtml(x.type)}</span>`:''}</div>${x.note?`<p class="note">${escapeHtml(x.note)}</p>`:''}<div class="btns"><button class="btn" onclick="editItem('${x.id}')">編輯</button><button class="btn del" onclick="delItem('${x.id}')">刪除</button></div></div>`).join('') : `<div class="empty">暫時未有食記<br><small>撳下面紅色嗰粒掣，寫低第一間。</small></div>`; }
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function openForm(){document.getElementById('formTitle').textContent='新增食記';document.getElementById('editId').value='';['name','district','type','note'].forEach(id=>document.getElementById(id).value='');document.getElementById('modalBg').style.display='flex';}
+function closeForm(){document.getElementById('modalBg').style.display='none';}
+function editItem(id){const x=all.find(v=>String(v.id)===String(id)); if(!x) return;document.getElementById('formTitle').textContent='編輯食記';document.getElementById('editId').value=x.id;document.getElementById('name').value=x.name||'';document.getElementById('district').value=x.district||'';document.getElementById('type').value=x.type||'';document.getElementById('rating').value=x.rating||'必食';document.querySelectorAll('#ratingPills button').forEach(b=>b.classList.toggle('on', b.dataset.v===(x.rating||'必食')));document.getElementById('note').value=x.note||'';document.getElementById('modalBg').style.display='flex';}
+async function save(){ if(!client){alert('請先設定 Supabase');return;} const name=document.getElementById('name').value.trim(); if(!name){alert('請填餐廳名');return;} const payload={name, district:document.getElementById('district').value.trim()||null, type:document.getElementById('type').value.trim()||null, rating:document.getElementById('rating').value, note:document.getElementById('note').value.trim()||null}; const id=document.getElementById('editId').value; let res; if(id) res=await client.from('restaurants').update(payload).eq('id',id); else res=await client.from('restaurants').insert([payload]); if(res.error){alert('儲存失敗：'+res.error.message);return;} closeForm(); await load(); }
+async function delItem(id){ if(!confirm('確定要刪除？刪除後無得還原。')) return; const {error}=await client.from('restaurants').delete().eq('id',id); if(error){alert('刪除失敗：'+error.message);return;} await load(); }
+document.querySelectorAll('#ratingPills button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#ratingPills button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById('rating').value=b.dataset.v;}));
+function addNote(txt){const el=document.getElementById('note'); el.value = el.value ? el.value + ' ' + txt : txt; el.focus();}
+document.getElementById('q').addEventListener('input',render);
+['fDistrict','fType','fRating'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+document.querySelectorAll('#quickChips .chip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#quickChips .chip').forEach(x=>x.classList.remove('on')); b.classList.add('on'); document.getElementById('fRating').value=b.dataset.r; render();}));
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg') closeForm();});
+load();
+if(client){ client.channel('restaurants-change').on('postgres_changes',{event:'*',schema:'public',table:'restaurants'},()=>load()).subscribe(); }
+</script>
+
+<script>
+// Lock manual pinch / double-tap zoom - iOS Safari ignores user-scalable=no alone
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('gesturechange', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('gestureend', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('touchmove', function(e){ if(e.touches && e.touches.length > 1){ e.preventDefault(); } }, {passive:false});
+document.addEventListener('touchstart', function(e){ if(e.touches && e.touches.length > 1){ e.preventDefault(); } }, {passive:false});
+var _lastTouch = 0;
+document.addEventListener('touchend', function(e){
+  var now = Date.now();
+  if(now - _lastTouch <= 300){ e.preventDefault(); }
+  _lastTouch = now;
+}, {passive:false});
+document.addEventListener('dblclick', function(e){ e.preventDefault(); }, {passive:false});
+</script>
+</body>
+</html>
